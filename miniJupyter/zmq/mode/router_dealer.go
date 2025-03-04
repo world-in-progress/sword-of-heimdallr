@@ -2,7 +2,7 @@ package mode
 
 import (
 	"fmt"
-	"zmq/base"
+	"miniJupyter/zmq/base"
 
 	zmq "github.com/pebbe/zmq4"
 )

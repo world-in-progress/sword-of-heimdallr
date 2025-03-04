@@ -61,6 +61,7 @@ type RetryConfig struct {
 // Execute Reply Content
 type ExecuteReplyContent struct {
     Status Status `json:"status"`
+    Error  string `json:"error"`
 }
 
 // Core Info Reply Content

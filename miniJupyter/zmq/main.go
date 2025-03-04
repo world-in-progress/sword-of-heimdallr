@@ -4,8 +4,8 @@ import (
 	"log"
 	"time"
 
-	"zmq/base"
-	"zmq/mode"
+	"miniJupyter/zmq/base"
+	"miniJupyter/zmq/mode"
 )
 
 func main() {

@@ -64,3 +64,42 @@ func ParseMessage(data []byte) (*Message, error) {
 	msg.Content = contentType
 	return &msg, nil
 }
+
+// SerializeMessage 序列化消息为JSON字节数组
+func SerializeMessage(msg *Message) ([]byte, error) {
+	if msg == nil {
+		return nil, fmt.Errorf("cannot serialize nil message")
+	}
+
+	// 验证消息
+	if err := ValidateMessage(msg); err != nil {
+		return nil, fmt.Errorf("message validation failed: %w", err)
+	}
+
+	// 序列化为JSON
+	data, err := json.Marshal(msg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to serialize message: %w", err)
+	}
+
+	return data, nil
+}
+
+// SerializeMessageString 序列化消息为JSON字符串
+func SerializeMessageString(msg *Message) (string, error) {
+	data, err := SerializeMessage(msg)
+	if err != nil {
+		return "", err
+	}
+	return string(data), nil
+}
+
+// DeserializeMessage 反序列化JSON字节数组为消息
+func DeserializeMessage(data []byte) (*Message, error) {
+	return ParseMessage(data)
+}
+
+// DeserializeMessageString 反序列化JSON字符串为消息
+func DeserializeMessageString(data string) (*Message, error) {
+	return ParseMessage([]byte(data))
+}

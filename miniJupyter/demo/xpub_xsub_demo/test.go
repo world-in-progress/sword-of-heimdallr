@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"miniJupyter/zmq/mode"
 	"time"
-	"zmq/mode"
 )
 
 func main() {
@@ -105,18 +105,18 @@ func main() {
 func testSubscribe(sub *mode.XSubscriberNode, topic string) {
     err := sub.Subscribe(topic)
     if err != nil {
-        fmt.Printf("订阅失败 - UserID: %s, Topic: %s, Error: %v\n", sub.GetUserID(), topic, err)
+        fmt.Printf("订阅失败 - UserID: %s, Topic: %s, Error: %v\n", "sub.userID", topic, err)
     } else {
-        fmt.Printf("订阅成功 - UserID: %s, Topic: %s\n", sub.GetUserID(), topic)
+        fmt.Printf("订阅成功 - UserID: %s, Topic: %s\n", "sub.userID", topic)
     }
 }
 
 func testUnsubscribe(sub *mode.XSubscriberNode, topic string) {
     err := sub.Unsubscribe(topic)
     if err != nil {
-        fmt.Printf("取消订阅失败 - UserID: %s, Topic: %s, Error: %v\n", sub.GetUserID(), topic, err)
+        fmt.Printf("取消订阅失败 - UserID: %s, Topic: %s, Error: %v\n", "sub.userID", topic, err)
     } else {
-        fmt.Printf("取消订阅成功 - UserID: %s, Topic: %s\n", sub.GetUserID(), topic)
+        fmt.Printf("取消订阅成功 - UserID: %s, Topic: %s\n", "sub.userID", topic)
     }
 }
 

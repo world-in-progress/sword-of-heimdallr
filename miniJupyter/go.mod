@@ -1,4 +1,4 @@
-module zmq
+module miniJupyter
 
 go 1.23.5
 
