@@ -38,10 +38,10 @@ func GetContentType(msgType string) interface{} {
 }
 
 // ParseMessage 智能解析消息
-func ParseMessage(data []byte) (*Message, error) {
+func ParseMessage(data string) (*Message, error) {
 	// 1. 先解析基础消息结构
 	var msg Message
-	if err := json.Unmarshal(data, &msg); err != nil {
+	if err := json.Unmarshal([]byte(data), &msg); err != nil {
 		return nil, fmt.Errorf("failed to parse message: %w", err)
 	}
 	
@@ -65,41 +65,27 @@ func ParseMessage(data []byte) (*Message, error) {
 	return &msg, nil
 }
 
-// SerializeMessage 序列化消息为JSON字节数组
-func SerializeMessage(msg *Message) ([]byte, error) {
+// SerializeMessage 序列化消息为JSON字符串
+func SerializeMessage(msg *Message) (string, error) {
 	if msg == nil {
-		return nil, fmt.Errorf("cannot serialize nil message")
+		return "", fmt.Errorf("cannot serialize nil message")
 	}
 
 	// 验证消息
 	if err := ValidateMessage(msg); err != nil {
-		return nil, fmt.Errorf("message validation failed: %w", err)
+		return "", fmt.Errorf("message validation failed: %w", err)
 	}
 
 	// 序列化为JSON
 	data, err := json.Marshal(msg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to serialize message: %w", err)
+		return "", fmt.Errorf("failed to serialize message: %w", err)
 	}
 
-	return data, nil
-}
-
-// SerializeMessageString 序列化消息为JSON字符串
-func SerializeMessageString(msg *Message) (string, error) {
-	data, err := SerializeMessage(msg)
-	if err != nil {
-		return "", err
-	}
 	return string(data), nil
 }
 
-// DeserializeMessage 反序列化JSON字节数组为消息
-func DeserializeMessage(data []byte) (*Message, error) {
+// DeserializeMessage 反序列化JSON字符串为消息
+func DeserializeMessage(data string) (*Message, error) {
 	return ParseMessage(data)
-}
-
-// DeserializeMessageString 反序列化JSON字符串为消息
-func DeserializeMessageString(data string) (*Message, error) {
-	return ParseMessage([]byte(data))
 }

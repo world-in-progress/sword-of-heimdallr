@@ -2,6 +2,7 @@ package mode
 
 import (
 	"fmt"
+	"log"
 	"miniJupyter/zmq/base"
 
 	zmq "github.com/pebbe/zmq4"
@@ -46,6 +47,7 @@ func (r *RouterNode) ReceiveFromClient() (clientID string, msg string, err error
 	if err != nil {
 		return "", "", err
 	}
+	log.Println("ReceiveFromClient:", msgs)
 	if len(msgs) < 2 {
 		return "", "", fmt.Errorf("invalid message format")
 	}
@@ -53,7 +55,7 @@ func (r *RouterNode) ReceiveFromClient() (clientID string, msg string, err error
 }
 
 // SendToServer 发送消息给特定服务端
-func (d *DealerNode) SendToServer(serverID string, msg string) error {
+func (d *DealerNode) SendToServer(serverID string, msg []byte) error {
 	return d.Send(serverID, msg)
 }
 

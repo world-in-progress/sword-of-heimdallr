@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"miniJupyter/protocol"
 	"miniJupyter/zmq/base"
@@ -17,12 +16,14 @@ type Client struct {
 func NewClient(configPath string) (*Client, error) {
 	// 加载配置
 	config, err := base.LoadConfig(configPath)
+	log.Printf("Load config: %+v", config)
 	if err != nil {
 		return nil, err
 	}
 
 	// 创建Dealer节点
 	dealer, err := mode.NewDealer(config.Zmq.DealerAddress)
+	log.Println("Create dealer:", dealer)
 	if err != nil {
 		return nil, err
 	}
@@ -56,18 +57,20 @@ func (c *Client) SendExecuteRequest() error {
 	if err != nil {
 		return err
 	}
-
+	log.Println("Create message")
 	// 序列化消息
-	msgData, err := json.Marshal(msg)
+	msgData, err := protocol.SerializeMessage(msg)
 	if err != nil {
 		return err
 	}
 
 	// 发送消息
-	err = c.dealer.SendToServer("server", string(msgData))
+	err = c.dealer.SendToServer("server", []byte(msgData))
 	if err != nil {
+		log.Printf("Failed to send message: %v", err)
 		return err
 	}
+	log.Println("Send message to server")
 
 	// 接收响应
 	_, responseData, err := c.dealer.ReceiveFromServer()
@@ -76,7 +79,7 @@ func (c *Client) SendExecuteRequest() error {
 	}
 
 	// 解析响应
-	response, err := protocol.ParseMessage([]byte(responseData))
+	response, err := protocol.ParseMessage(responseData)
 	if err != nil {
 		return err
 	}
@@ -91,17 +94,20 @@ func (c *Client) Close() {
 }
 
 func main() {
-	client, err := NewClient("../../zmq/config/config.yaml")
+	client, err := NewClient("../../../zmq/config/config.yaml")
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
+	log.Println("Client starting...")
 	defer client.Close()
 
 	// 等待服务器启动
 	time.Sleep(time.Second)
+	log.Println("Client started")
 
 	// 发送测试请求
 	err = client.SendExecuteRequest()
+	log.Println("Send request to server")
 	if err != nil {
 		log.Fatalf("Failed to send request: %v", err)
 	}

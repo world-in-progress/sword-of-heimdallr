@@ -92,7 +92,7 @@ func (c *Core) Run() error {
 		}
 
 		// 解析消息
-		msg, err := protocol.ParseMessage([]byte(msgData))
+		msg, err := protocol.ParseMessage(msgData)
 		if err != nil {
 			log.Printf("Error parsing message: %v\n", err)
 			continue
@@ -123,10 +123,11 @@ func (c *Core) Run() error {
 }
 
 func main() {
-	core, err := NewCore("../../zmq/config/config.yaml")
+	core, err := NewCore("../../../zmq/config/config.yaml")
 	if err != nil {
 		log.Fatalf("Failed to create core: %v", err)
 	}
+	log.Println("Core created")
 
 	if err := core.Run(); err != nil {
 		log.Fatalf("Core error: %v", err)

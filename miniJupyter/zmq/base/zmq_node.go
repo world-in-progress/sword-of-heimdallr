@@ -10,12 +10,12 @@ import (
 // 读取配置文件
 type Config struct {
     Zmq struct {
-        RouterAddress     string `yaml:"router_address"`
-        DealerAddress     string `yaml:"dealer_address"`
-        PubAddress        string `yaml:"pub_address"`
-        SubAddress        string `yaml:"sub_address"`
-        HeartbeatInterval int    `yaml:"heartbeat_interval"`
-        HeartbeatTimeout  int    `yaml:"heartbeat_timeout"`
+        RouterAddress     string `yaml:"RouterAddress"`
+        DealerAddress     string `yaml:"DealerAddress"`
+        PubAddress        string `yaml:"PubAddress"`
+        SubAddress        string `yaml:"SubAddress"`
+        HeartbeatInterval int    `yaml:"HeartbeatInterval"`
+        HeartbeatTimeout  int    `yaml:"HeartbeatTimeout"`
     } `yaml:"zmq"`
 }
 
@@ -52,9 +52,9 @@ func NewZmqNode(socketType zmq.Type, address string, bind bool) (*ZmqNode, error
     return &ZmqNode{socket: socket}, nil
 }
 
-// 发送消息，可以发送字符串和字节数组
-func (z *ZmqNode) Send(msg ...string) error {
-    _, err := z.socket.SendMessage(msg)
+// 发送消息，支持字符串和字节数组
+func (z *ZmqNode) Send(parts ...interface{}) error {
+    _, err := z.socket.SendMessage(parts...)
     return err
 }
 
