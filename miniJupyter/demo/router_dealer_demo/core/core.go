@@ -90,6 +90,7 @@ func (c *Core) Run() error {
 			log.Printf("Error receiving message: %v\n", err)
 			continue
 		}
+		log.Printf("Receive message from client: %s, %s", clientID, msgData)
 
 		// 解析消息
 		msg, err := protocol.ParseMessage(msgData)
@@ -97,6 +98,8 @@ func (c *Core) Run() error {
 			log.Printf("Error parsing message: %v\n", err)
 			continue
 		}
+		log.Printf("Parse message: %+v", msg)
+		log.Printf("Parse message type: %s", msg.Header.MsgType)
 
 		// 处理消息
 		var response *protocol.Message
@@ -106,6 +109,7 @@ func (c *Core) Run() error {
 		default:
 			response = createErrorResponse(msg, "Unsupported message type")
 		}
+		log.Printf("Response message: %+v", response)
 
 		// 序列化响应
 		responseData, err := protocol.SerializeMessage(response)

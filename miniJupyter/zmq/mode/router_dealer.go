@@ -1,6 +1,7 @@
 package mode
 
 import (
+	"encoding/hex"
 	"fmt"
 	"log"
 	"miniJupyter/zmq/base"
@@ -38,7 +39,12 @@ func NewDealer(address string) (*DealerNode, error) {
 
 // SendToClient 发送消息给特定客户端
 func (r *RouterNode) SendToClient(clientID string, msg string) error {
-	return r.Send(clientID, msg)
+	// 将十六进制字符串转换回二进制身份标识符
+	id, err := hex.DecodeString(clientID)
+	if err != nil {
+		return fmt.Errorf("invalid client ID format: %w", err)
+	}
+	return r.Send(string(id), msg)
 }
 
 // ReceiveFromClient 接收来自客户端的消息，返回客户端ID和消息
@@ -51,19 +57,21 @@ func (r *RouterNode) ReceiveFromClient() (clientID string, msg string, err error
 	if len(msgs) < 2 {
 		return "", "", fmt.Errorf("invalid message format")
 	}
-	return msgs[0], msgs[1], nil
+	// 将二进制身份标识符转换为十六进制字符串表示
+	clientID = fmt.Sprintf("%x", []byte(msgs[0]))
+	return clientID, msgs[1], nil
 }
 
 // SendToServer 发送消息给特定服务端
-func (d *DealerNode) SendToServer(serverID string, msg []byte) error {
-	return d.Send(serverID, msg)
+func (d *DealerNode) SendToServer(msg string) error {
+	return d.Send(msg)
 }
 
 // ReceiveFromServer 接收来自服务端的消息
-func (d *DealerNode) ReceiveFromServer() (serverID string, msg string, err error) {
+func (d *DealerNode) ReceiveFromServer() (msg string, err error) {
 	msgs, err := d.Receive()
 	if err != nil {
-		return "", "", err
+		return "", err
 	}
-	return msgs[0], msgs[1], nil
+	return msgs[0], nil
 }

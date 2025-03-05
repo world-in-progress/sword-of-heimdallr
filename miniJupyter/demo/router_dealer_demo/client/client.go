@@ -58,14 +58,16 @@ func (c *Client) SendExecuteRequest() error {
 		return err
 	}
 	log.Println("Create message")
+
 	// 序列化消息
 	msgData, err := protocol.SerializeMessage(msg)
 	if err != nil {
 		return err
 	}
+	log.Printf("Serialize message: %s", msgData)
 
 	// 发送消息
-	err = c.dealer.SendToServer("server", []byte(msgData))
+	err = c.dealer.SendToServer(msgData)
 	if err != nil {
 		log.Printf("Failed to send message: %v", err)
 		return err
@@ -73,7 +75,7 @@ func (c *Client) SendExecuteRequest() error {
 	log.Println("Send message to server")
 
 	// 接收响应
-	_, responseData, err := c.dealer.ReceiveFromServer()
+	responseData, err := c.dealer.ReceiveFromServer()
 	if err != nil {
 		return err
 	}
