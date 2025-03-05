@@ -1,6 +1,7 @@
 package base
 
 import (
+	"fmt"
 	"os"
 
 	zmq "github.com/pebbe/zmq4"
@@ -38,17 +39,32 @@ type ZmqNode struct {
     socket *zmq.Socket
 }
 
-// 创建 ZMQ 端点
-func NewZmqNode(socketType zmq.Type, address string, bind bool) (*ZmqNode, error) {
+// NewZmqNode 创建 ZMQ 端点
+func NewZmqNode(socketType zmq.Type, address string, bind bool, identity string) (*ZmqNode, error) {
     socket, err := zmq.NewSocket(socketType)
     if err != nil {
         return nil, err
     }
-    if bind {
-        socket.Bind(address)
-    } else {
-        socket.Connect(address)
+
+    // 如果提供了身份标识，则设置它
+    if identity != "" {
+        if err := socket.SetIdentity(identity); err != nil {
+            socket.Close()
+            return nil, fmt.Errorf("failed to set identity: %w", err)
+        }
     }
+
+    if bind {
+        err = socket.Bind(address)
+    } else {
+        err = socket.Connect(address)
+    }
+    
+    if err != nil {
+        socket.Close()
+        return nil, err
+    }
+
     return &ZmqNode{socket: socket}, nil
 }
 

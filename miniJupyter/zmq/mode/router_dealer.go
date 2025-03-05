@@ -1,7 +1,6 @@
 package mode
 
 import (
-	"encoding/hex"
 	"fmt"
 	"log"
 	"miniJupyter/zmq/base"
@@ -19,18 +18,21 @@ type DealerNode struct {
 	*base.ZmqNode
 }
 
-// NewRouter 创建并返回 RouterNode
-func NewRouter(address string) (*RouterNode, error) {
-	node, err := base.NewZmqNode(zmq.ROUTER, address, true)
+// NewRouter 创建并返回 RouterNode (不需要身份标识)
+func NewRouter(address string, bind bool) (*RouterNode, error) {
+	node, err := base.NewZmqNode(zmq.ROUTER, address, bind, "")  // 空身份标识
 	if err != nil {
 		return nil, err
 	}
 	return &RouterNode{node}, nil
 }
 
-// NewDealer 创建并返回 DealerNode
-func NewDealer(address string) (*DealerNode, error) {
-	node, err := base.NewZmqNode(zmq.DEALER, address, false)
+// NewDealer 创建并返回 DealerNode (需要身份标识)
+func NewDealer(address string, bind bool, identity string) (*DealerNode, error) {
+	if identity == "" {
+		return nil, fmt.Errorf("dealer requires an identity")
+	}
+	node, err := base.NewZmqNode(zmq.DEALER, address, bind, identity)
 	if err != nil {
 		return nil, err
 	}
@@ -39,12 +41,8 @@ func NewDealer(address string) (*DealerNode, error) {
 
 // SendToClient 发送消息给特定客户端
 func (r *RouterNode) SendToClient(clientID string, msg string) error {
-	// 将十六进制字符串转换回二进制身份标识符
-	id, err := hex.DecodeString(clientID)
-	if err != nil {
-		return fmt.Errorf("invalid client ID format: %w", err)
-	}
-	return r.Send(string(id), msg)
+	log.Printf("SendToClient to %s", clientID)
+	return r.Send(clientID, msg)
 }
 
 // ReceiveFromClient 接收来自客户端的消息，返回客户端ID和消息
@@ -53,13 +51,11 @@ func (r *RouterNode) ReceiveFromClient() (clientID string, msg string, err error
 	if err != nil {
 		return "", "", err
 	}
-	log.Println("ReceiveFromClient:", msgs)
+	
 	if len(msgs) < 2 {
 		return "", "", fmt.Errorf("invalid message format")
 	}
-	// 将二进制身份标识符转换为十六进制字符串表示
-	clientID = fmt.Sprintf("%x", []byte(msgs[0]))
-	return clientID, msgs[1], nil
+	return msgs[0], msgs[1], nil
 }
 
 // SendToServer 发送消息给特定服务端

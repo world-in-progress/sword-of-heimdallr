@@ -16,7 +16,7 @@ type SubscriberNode struct {
 }
 
 func NewPublisher(address string) (*PublisherNode, error) {
-	node, err := base.NewZmqNode(zmq.PUB, address, true)
+	node, err := base.NewZmqNode(zmq.PUB, address, true, "")
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func NewPublisher(address string) (*PublisherNode, error) {
 }
 
 func NewSubscriber(address string) (*SubscriberNode, error) {
-	node, err := base.NewZmqNode(zmq.SUB, address, false)
+	node, err := base.NewZmqNode(zmq.SUB, address, false, "")
 	if err != nil {
 		return nil, err
 	}

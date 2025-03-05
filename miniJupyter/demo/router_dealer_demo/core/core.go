@@ -22,7 +22,7 @@ func NewCore(configPath string) (*Core, error) {
 	}
 
 	// 创建Router节点
-	router, err := mode.NewRouter(config.Zmq.RouterAddress)
+	router, err := mode.NewRouter(config.Zmq.RouterAddress, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create router: %w", err)
 	}
@@ -46,13 +46,14 @@ func (c *Core) handleExecuteRequest(msg *protocol.Message) *protocol.Message {
 
 	// 创建响应消息
 	response := protocol.NewMessageBuilder().
-		WithType(protocol.MsgTypeExecuteReply).
+		WithType(protocol.MsgTypeExecuteResult).
 		WithSession(msg.Header.SessionId).
 		WithUser(msg.Header.UserId).
 		WithTransport(protocol.TransportZMQ).
 		WithParentMessage(msg).
-		WithContent(&protocol.ExecuteReplyContent{
+		WithContent(&protocol.ExecuteResultContent{
 			Status: protocol.StatusSuccess,
+			Result: "Execution successful",
 		}).
 		WithTraceHop("core-1", "jupyter-core", "localhost")
 
@@ -98,7 +99,6 @@ func (c *Core) Run() error {
 			log.Printf("Error parsing message: %v\n", err)
 			continue
 		}
-		log.Printf("Parse message: %+v", msg)
 		log.Printf("Parse message type: %s", msg.Header.MsgType)
 
 		// 处理消息
@@ -109,7 +109,6 @@ func (c *Core) Run() error {
 		default:
 			response = createErrorResponse(msg, "Unsupported message type")
 		}
-		log.Printf("Response message: %+v", response)
 
 		// 序列化响应
 		responseData, err := protocol.SerializeMessage(response)
@@ -117,9 +116,10 @@ func (c *Core) Run() error {
 			log.Printf("Error serializing response: %v\n", err)
 			continue
 		}
+		log.Printf("Serialize response")
 
 		// 发送响应
-		err = c.router.SendToClient(clientID, string(responseData))
+		err = c.router.SendToClient(clientID, responseData)
 		if err != nil {
 			log.Printf("Error sending response: %v\n", err)
 		}

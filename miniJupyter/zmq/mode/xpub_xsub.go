@@ -29,7 +29,7 @@ type XSubscriberNode struct {
 
 // NewXPublisher 创建新的 XPUB 节点，增加权限控制
 func NewXPublisher(address string) (*XPublisherNode, error) {
-	node, err := base.NewZmqNode(zmq.XPUB, address, true)
+	node, err := base.NewZmqNode(zmq.XPUB, address, true, "")
 	return &XPublisherNode{
 		ZmqNode:     node,
 		permissions: make(map[string][]string),
@@ -38,7 +38,7 @@ func NewXPublisher(address string) (*XPublisherNode, error) {
 
 // NewXSubscriber 创建新的 XSUB 节点，需要提供用户ID
 func NewXSubscriber(address string, userID string) (*XSubscriberNode, error) {
-	node, err := base.NewZmqNode(zmq.XSUB, address, false)
+	node, err := base.NewZmqNode(zmq.XSUB, address, false, "")
 	return &XSubscriberNode{
 		ZmqNode: node,
 		topics:  make([]string, 0),

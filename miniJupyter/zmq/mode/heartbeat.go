@@ -10,7 +10,7 @@ import (
 
 // RunHeartbeatServer 心跳检测服务器
 func RunHeartbeatServer(address string) {
-	publisher, err := base.NewZmqNode(zmq.PUB, address, true)
+	publisher, err := base.NewZmqNode(zmq.PUB, address, true, "")
 	if err != nil {
 		panic(err)
 	}
@@ -27,7 +27,7 @@ func RunHeartbeatServer(address string) {
 
 // RunHeartbeatClient 心跳检测客户端
 func RunHeartbeatClient(address string, timeout time.Duration) chan bool {
-	subscriber, err := base.NewZmqNode(zmq.SUB, address, false)
+	subscriber, err := base.NewZmqNode(zmq.SUB, address, false, "")
 	if err != nil {
 		panic(err)
 	}

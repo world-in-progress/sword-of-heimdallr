@@ -21,13 +21,14 @@ func NewClient(configPath string) (*Client, error) {
 		return nil, err
 	}
 
-	// 创建Dealer节点
-	dealer, err := mode.NewDealer(config.Zmq.DealerAddress)
-	log.Println("Create dealer:", dealer)
+	// 创建Dealer节点，设置一个固定的客户端ID
+	clientID := "client-001"  // 你可以根据需要设置不同的ID
+	dealer, err := mode.NewDealer(config.Zmq.DealerAddress, false, clientID)
+	
 	if err != nil {
 		return nil, err
 	}
-
+	
 	return &Client{
 		dealer: dealer,
 		config: config,
@@ -38,7 +39,7 @@ func (c *Client) SendExecuteRequest() error {
 	// 创建执行请求消息
 	msg, err := protocol.NewMessageBuilder().
 		WithType(protocol.MsgTypeExecuteRequest).
-		WithSession("test-session").
+		WithSession("client-001").
 		WithUser("test-user").
 		WithTransport(protocol.TransportZMQ).
 		WithContent(&protocol.ExecuteRequestContent{
@@ -64,7 +65,7 @@ func (c *Client) SendExecuteRequest() error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Serialize message: %s", msgData)
+	log.Printf("Serialize message")
 
 	// 发送消息
 	err = c.dealer.SendToServer(msgData)
@@ -79,6 +80,7 @@ func (c *Client) SendExecuteRequest() error {
 	if err != nil {
 		return err
 	}
+	log.Printf("Receive response from server: %s", responseData)
 
 	// 解析响应
 	response, err := protocol.ParseMessage(responseData)
@@ -109,7 +111,6 @@ func main() {
 
 	// 发送测试请求
 	err = client.SendExecuteRequest()
-	log.Println("Send request to server")
 	if err != nil {
 		log.Fatalf("Failed to send request: %v", err)
 	}
