@@ -1,11 +1,11 @@
 package protocol
 
-// 协议版本
+// Protocol version
 const (
     ProtocolVersion = "0.4"
 )
 
-// 枚举类型定义
+// Enum type definitions
 type (
     Compression string
     Encoding    string
@@ -50,7 +50,7 @@ const (
     // RetryStrategy
     RetryExponentialBackoff RetryStrategy = "exponential_backoff"
 
-    // 定义消息类型常量
+    // Define message type constants
     MsgTypeExecuteRequest  = "execute_request"
     MsgTypeExecuteReply    = "execute_reply"
     MsgTypeExecuteResult   = "execute_result"
@@ -62,7 +62,7 @@ const (
     MsgTypeCommClose      = "comm_close"
 )
 
-// 添加消息类型检查
+// Add message type check
 func IsValidMessageType(msgType string) bool {
     switch msgType {
     case MsgTypeExecuteRequest, MsgTypeExecuteReply, MsgTypeExecuteResult,

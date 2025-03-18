@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// 读取配置文件
+// Read configuration file
 type Config struct {
     Zmq struct {
         RouterAddress     string `yaml:"RouterAddress"`
@@ -20,7 +20,7 @@ type Config struct {
     } `yaml:"zmq"`
 }
 
-// 解析 YAML 配置
+// Parse YAML configuration
 func LoadConfig(filename string) (*Config, error) {
     data, err := os.ReadFile(filename)
     if err != nil {
@@ -34,19 +34,19 @@ func LoadConfig(filename string) (*Config, error) {
     return &config, nil
 }
 
-// ZmqNode 结构体，封装 ZMQ 逻辑
+// ZmqNode structure, encapsulates ZMQ logic
 type ZmqNode struct {
     socket *zmq.Socket
 }
 
-// NewZmqNode 创建 ZMQ 端点
+// NewZmqNode creates a ZMQ endpoint
 func NewZmqNode(socketType zmq.Type, address string, bind bool, identity string) (*ZmqNode, error) {
     socket, err := zmq.NewSocket(socketType)
     if err != nil {
         return nil, err
     }
 
-    // 如果提供了身份标识，则设置它
+    // If an identity is provided, set it
     if identity != "" {
         if err := socket.SetIdentity(identity); err != nil {
             socket.Close()
@@ -68,23 +68,23 @@ func NewZmqNode(socketType zmq.Type, address string, bind bool, identity string)
     return &ZmqNode{socket: socket}, nil
 }
 
-// 发送消息，支持字符串和字节数组
+// Send message, supports strings and byte arrays
 func (z *ZmqNode) Send(parts ...interface{}) error {
     _, err := z.socket.SendMessage(parts...)
     return err
 }
 
-// 接收消息
+// Receive message
 func (z *ZmqNode) Receive() ([]string, error) {
     return z.socket.RecvMessage(0)
 }
 
-// 关闭 ZMQ 连接
+// Close ZMQ connection
 func (z *ZmqNode) Close() {
     z.socket.Close()
 }
 
-// SetSubscribe 设置订阅主题
+// SetSubscribe sets the subscription topic
 func (z *ZmqNode) SetSubscribe(topic string) error {
     return z.socket.SetSubscribe(topic)
 }

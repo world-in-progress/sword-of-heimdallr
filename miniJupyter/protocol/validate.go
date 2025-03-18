@@ -5,19 +5,19 @@ import (
 	"fmt"
 )
 
-// Validator 接口定义消息验证方法
+// Validator interface defines message validation methods
 type Validator interface {
     Validate() error
 }
 
-// ValidateMessage 验证整个消息结构
+// ValidateMessage validates the entire message structure
 func ValidateMessage(msg *Message) error {
-    // 验证Header
+    // Validate Header
     if err := validateHeader(&msg.Header); err != nil {
         return fmt.Errorf("invalid header: %w", err)
     }
 
-    // 验证Content
+    // Validate Content
     if validator, ok := msg.Content.(Validator); ok {
         if err := validator.Validate(); err != nil {
             return fmt.Errorf("invalid content: %w", err)
@@ -27,7 +27,7 @@ func ValidateMessage(msg *Message) error {
     return nil
 }
 
-// validateHeader 验证消息头
+// validateHeader validates the message header
 func validateHeader(h *Header) error {
     if h.MsgId == "" {
         return errors.New("msg_id is required")
@@ -47,7 +47,7 @@ func validateHeader(h *Header) error {
     return nil
 }
 
-// ExecuteRequestContent 验证
+// ExecuteRequestContent validation
 func (c *ExecuteRequestContent) Validate() error {
     if c.CommandId == "" {
         return errors.New("command_id is required")
@@ -67,7 +67,7 @@ func (c *ExecuteRequestContent) Validate() error {
     return nil
 }
 
-// ExecuteReplyContent 验证
+// ExecuteReplyContent validation
 func (c *ExecuteReplyContent) Validate() error {
     switch c.Status {
     case StatusError, StatusStarting, StatusWaiting:
@@ -77,7 +77,7 @@ func (c *ExecuteReplyContent) Validate() error {
     }
 }
 
-// CoreInfoContent 验证
+// CoreInfoContent validation
 func (c *CoreInfoContent) Validate() error {
     if c.CoreVersion == "" {
         return errors.New("core_version is required")
@@ -94,7 +94,7 @@ func (c *CoreInfoContent) Validate() error {
     return nil
 }
 
-// ExecuteResultContent 验证
+// ExecuteResultContent validation
 func (c *ExecuteResultContent) Validate() error {
     switch c.Status {
     case StatusSuccess, StatusError:
@@ -104,7 +104,7 @@ func (c *ExecuteResultContent) Validate() error {
     }
 }
 
-// StreamContent 验证
+// StreamContent validation
 func (c *StreamContent) Validate() error {
     switch c.Type {
     case StreamStdout, StreamStderr:
@@ -114,7 +114,7 @@ func (c *StreamContent) Validate() error {
     }
 }
 
-// CommOpenContent 验证
+// CommOpenContent validation
 func (c *CommOpenContent) Validate() error {
     if c.CommId == "" {
         return errors.New("comm_id is required")
@@ -125,7 +125,7 @@ func (c *CommOpenContent) Validate() error {
     return nil
 }
 
-// CommMsgContent 验证
+// CommMsgContent validation
 func (c *CommMsgContent) Validate() error {
     if c.CommId == "" {
         return errors.New("comm_id is required")

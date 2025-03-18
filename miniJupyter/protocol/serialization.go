@@ -5,53 +5,53 @@ import (
 	"fmt"
 )
 
-// GetContentType 根据消息类型返回对应的 Content 结构体
+// GetContentType returns the corresponding Content struct based on message type
 func GetContentType(msgType string) interface{} {
 	switch msgType {
-	// ROUTER/DEALER 消息
+	// ROUTER/DEALER messages
 	case MsgTypeExecuteRequest:
 		return &ExecuteRequestContent{}
 	case MsgTypeExecuteReply:
 		return &ExecuteReplyContent{}
 	case MsgTypeCoreInfoRequest:
-		return &struct{}{} // 空结构体，因为该请求没有content
+		return &struct{}{} // Empty struct, because this request has no content
 	case MsgTypeCoreInfoReply:
 		return &CoreInfoContent{}
 
-	// PUB/SUB 消息
+	// PUB/SUB messages
 	case MsgTypeExecuteResult:
 		return &ExecuteResultContent{}
 	case MsgTypeStream:
 		return &StreamContent{}
 
-	// Comm 消息
+	// Comm messages
 	case MsgTypeCommOpen:
 		return &CommOpenContent{}
 	case MsgTypeCommMsg:
 		return &CommMsgContent{}
 	case MsgTypeCommClose:
-		return &CommMsgContent{} // CommClose 使用相同的结构
+		return &CommMsgContent{} // CommClose uses the same structure as CommMsg
 
 	default:
 		return nil
 	}
 }
 
-// ParseMessage 智能解析消息
+// ParseMessage smartly parses messages
 func ParseMessage(data string) (*Message, error) {
-	// 1. 先解析基础消息结构
+	// 1. Parse the basic message structure first
 	var msg Message
 	if err := json.Unmarshal([]byte(data), &msg); err != nil {
 		return nil, fmt.Errorf("failed to parse message: %w", err)
 	}
 	
-	// 2. 获取正确的 Content 类型
+	// 2. Get the correct Content type
 	contentType := GetContentType(msg.Header.MsgType)
 	if contentType == nil {
 		return nil, fmt.Errorf("unknown message type: %s", msg.Header.MsgType)
 	}
 	
-	// 3. 重新解析 Content 到正确的类型
+	// 3. Re-parse Content to the correct type
 	contentData, err := json.Marshal(msg.Content)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal content: %w", err)
@@ -65,18 +65,18 @@ func ParseMessage(data string) (*Message, error) {
 	return &msg, nil
 }
 
-// SerializeMessage 序列化消息为JSON字符串
+// SerializeMessage serializes the message to a JSON string
 func SerializeMessage(msg *Message) (string, error) {
 	if msg == nil {
 		return "", fmt.Errorf("cannot serialize nil message")
 	}
 
-	// 验证消息
+	// Validate message
 	if err := ValidateMessage(msg); err != nil {
 		return "", fmt.Errorf("message validation failed: %w", err)
 	}
 
-	// 序列化为JSON
+	// Serialize to JSON
 	data, err := json.Marshal(msg)
 	if err != nil {
 		return "", fmt.Errorf("failed to serialize message: %w", err)
@@ -85,7 +85,7 @@ func SerializeMessage(msg *Message) (string, error) {
 	return string(data), nil
 }
 
-// DeserializeMessage 反序列化JSON字符串为消息
+// DeserializeMessage deserializes a JSON string to a message
 func DeserializeMessage(data string) (*Message, error) {
 	return ParseMessage(data)
 }

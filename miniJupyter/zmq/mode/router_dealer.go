@@ -8,26 +8,26 @@ import (
 	zmq "github.com/pebbe/zmq4"
 )
 
-// RouterNode 扩展基础的 ZmqNode，添加 Router 特定功能
+// RouterNode extends the basic ZmqNode, adding Router-specific functionality
 type RouterNode struct {
 	*base.ZmqNode
 }
 
-// DealerNode 扩展基础的 ZmqNode，添加 Dealer 特定功能
+// DealerNode extends the basic ZmqNode, adding Dealer-specific functionality
 type DealerNode struct {
 	*base.ZmqNode
 }
 
-// NewRouter 创建并返回 RouterNode (不需要身份标识)
+// NewRouter creates and returns a RouterNode (no identity required)
 func NewRouter(address string, bind bool) (*RouterNode, error) {
-	node, err := base.NewZmqNode(zmq.ROUTER, address, bind, "")  // 空身份标识
+	node, err := base.NewZmqNode(zmq.ROUTER, address, bind, "")  // Empty identity
 	if err != nil {
 		return nil, err
 	}
 	return &RouterNode{node}, nil
 }
 
-// NewDealer 创建并返回 DealerNode (需要身份标识)
+// NewDealer creates and returns a DealerNode (requires identity)
 func NewDealer(address string, bind bool, identity string) (*DealerNode, error) {
 	if identity == "" {
 		return nil, fmt.Errorf("dealer requires an identity")
@@ -39,13 +39,13 @@ func NewDealer(address string, bind bool, identity string) (*DealerNode, error) 
 	return &DealerNode{node}, nil
 }
 
-// SendToClient 发送消息给特定客户端
+// SendToClient sends a message to a specific client
 func (r *RouterNode) SendToClient(clientID string, msg string) error {
 	log.Printf("SendToClient to %s", clientID)
 	return r.Send(clientID, msg)
 }
 
-// ReceiveFromClient 接收来自客户端的消息，返回客户端ID和消息
+// ReceiveFromClient receives a message from a client, returning the client ID and message
 func (r *RouterNode) ReceiveFromClient() (clientID string, msg string, err error) {
 	msgs, err := r.Receive()
 	if err != nil {
@@ -58,12 +58,12 @@ func (r *RouterNode) ReceiveFromClient() (clientID string, msg string, err error
 	return msgs[0], msgs[1], nil
 }
 
-// SendToServer 发送消息给特定服务端
+// SendToServer sends a message to a specific server
 func (d *DealerNode) SendToServer(msg string) error {
 	return d.Send(msg)
 }
 
-// ReceiveFromServer 接收来自服务端的消息
+// ReceiveFromServer receives a message from a server
 func (d *DealerNode) ReceiveFromServer() (msg string, err error) {
 	msgs, err := d.Receive()
 	if err != nil {

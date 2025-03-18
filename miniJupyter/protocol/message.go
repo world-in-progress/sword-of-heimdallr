@@ -2,7 +2,7 @@ package protocol
 
 import "time"
 
-// 基础消息结构
+// Basic message structure
 type Message struct {
     Header        Header                 `json:"header"`
     ParentHeader  Header                 `json:"parent_header"`
@@ -12,7 +12,7 @@ type Message struct {
     Trace         *MessageTrace          `json:"trace"`
 }
 
-// Header 定义
+// Header definition
 type Header struct {
     MsgId       string      `json:"msg_id"`
     SessionId   string      `json:"session_id"`
@@ -25,13 +25,13 @@ type Header struct {
     Version     string      `json:"version"`
 }
 
-// Metadata 定义
+// Metadata definition
 type Metadata struct {
     Priority Priority `json:"priority"`
     Tags     []string `json:"tags"`
 }
 
-// Security 定义
+// Security definition
 type SecurityConfig struct {
     Token      string `json:"token"`
     Encryption string `json:"encryption"`
@@ -104,13 +104,13 @@ type CommMsgContent struct {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-// Message 的追踪相关方法
+// Message trace related methods
 func (m *Message) AddTrace(serviceId, serviceName, hostName string) *MessageHop {
-    // 如果还没有追踪信息，创建一个
+    // If there is no trace information, create one
     if m.Trace == nil {
         m.Trace = NewMessageTrace()
     }
     
-    // 添加服务节点
+    // Add service node
     return m.Trace.AddHop(serviceId, serviceName, hostName)
 }

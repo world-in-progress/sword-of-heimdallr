@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// MessageBuilder 使用构建器模式创建消息
+// MessageBuilder creates messages using the builder pattern
 type MessageBuilder struct {
     message *Message
 }
@@ -16,24 +16,24 @@ func NewMessageBuilder() *MessageBuilder {
         message: &Message{
             Header: Header{
                 MsgId:       GenerateUUID(),
-                SessionId:   "",  // 需要显式设置
-                UserId:      "",  // 需要显式设置
+                SessionId:   "",  // Need to be explicitly set
+                UserId:      "",  // Need to be explicitly set
                 Timestamp:   time.Now(),
-                MsgType:     "",  // 需要显式设置
+                MsgType:     "",  // Need to be explicitly set
                 Compression: CompressNone,
                 Encoding:    EncodeJSON,
-                Transport:   "",  // 需要显式设置
+                Transport:   "",  // Need to be explicitly set
                 Version:     ProtocolVersion,
             },
-            ParentHeader: Header{},  // 保留空初始化，可通过WithParentMessage/WithParentHeader设置
-            Meta:        Metadata{}, // 保留空初始化，可通过WithPriority/WithTags等方法设置
-            Trace:       NewMessageTrace(), // 保留初始化，确保追踪功能可用
-            Security:    SecurityConfig{},  // 保留空初始化，可通过WithSecurity等方法设置
+            ParentHeader: Header{},  // Keep empty initialization, can be set with WithParentMessage/WithParentHeader
+            Meta:        Metadata{}, // Keep empty initialization, can be set with WithPriority/WithTags etc.
+            Trace:       NewMessageTrace(), // Keep initialization, ensure trace functionality is available
+            Security:    SecurityConfig{},  // Keep empty initialization, can be set with WithSecurity etc.
         },
     }
 }
 
-// 必需的设置方法
+// Required setting methods
 func (b *MessageBuilder) WithType(msgType string) *MessageBuilder {
     b.message.Header.MsgType = msgType
     return b
@@ -54,7 +54,7 @@ func (b *MessageBuilder) WithTransport(transport Transport) *MessageBuilder {
     return b
 }
 
-// 可选的设置方法
+// Optional setting methods
 func (b *MessageBuilder) WithCompression(compression Compression) *MessageBuilder {
     b.message.Header.Compression = compression
     return b
@@ -70,7 +70,7 @@ func (b *MessageBuilder) WithContent(content interface{}) *MessageBuilder {
     return b
 }
 
-// Meta 相关方法
+// Meta related methods
 func (b *MessageBuilder) WithPriority(priority Priority) *MessageBuilder {
     b.message.Meta.Priority = priority
     return b
@@ -86,7 +86,7 @@ func (b *MessageBuilder) AddTag(tag string) *MessageBuilder {
     return b
 }
 
-// Security 相关方法
+// Security related methods
 func (b *MessageBuilder) WithToken(token string) *MessageBuilder {
     b.message.Security.Token = token
     return b
@@ -97,14 +97,14 @@ func (b *MessageBuilder) WithEncryption(encryption string) *MessageBuilder {
     return b
 }
 
-// 便捷方法：同时设置 token 和加密方式
+// Convenient method: set both token and encryption
 func (b *MessageBuilder) WithSecurity(token, encryption string) *MessageBuilder {
     b.message.Security.Token = token
     b.message.Security.Encryption = encryption
     return b
 }
 
-// ParentHeader 相关方法
+// ParentHeader related methods
 func (b *MessageBuilder) WithParentMessage(parent *Message) *MessageBuilder {
     if parent != nil {
         b.message.ParentHeader = parent.Header
@@ -112,13 +112,13 @@ func (b *MessageBuilder) WithParentMessage(parent *Message) *MessageBuilder {
     return b
 }
 
-// 也可以直接设置 ParentHeader
+// Also can directly set ParentHeader
 func (b *MessageBuilder) WithParentHeader(header Header) *MessageBuilder {
     b.message.ParentHeader = header
     return b
 }
 
-// Trace 相关方法
+// Trace related methods
 func (b *MessageBuilder) WithNewTrace() *MessageBuilder {
     b.message.Trace = NewMessageTrace()
     return b
@@ -129,7 +129,7 @@ func (b *MessageBuilder) WithTrace(trace *MessageTrace) *MessageBuilder {
     return b
 }
 
-// 便捷方法：同时添加 trace 并记录第一个 hop
+// Convenient method: add trace and record the first hop
 func (b *MessageBuilder) WithTraceHop(serviceId, serviceName, hostName string) *MessageBuilder {
     if b.message.Trace == nil {
         b.message.Trace = NewMessageTrace()
@@ -138,16 +138,16 @@ func (b *MessageBuilder) WithTraceHop(serviceId, serviceName, hostName string) *
     return b
 }
 
-// GenerateUUID 生成UUID
+// GenerateUUID generates a UUID
 func GenerateUUID() string {
     bytes := make([]byte, 16)
     rand.Read(bytes)
     return hex.EncodeToString(bytes)
 }
 
-// Build 方法包含必要的验证
+// Build method includes necessary validation
 func (b *MessageBuilder) Build() (*Message, error) {
-    // 验证必需字段
+    // Validate required fields
     if b.message.Header.MsgType == "" {
         return nil, ErrInvalidMessageType
     }

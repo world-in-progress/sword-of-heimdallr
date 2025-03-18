@@ -5,35 +5,35 @@ import (
 	"time"
 )
 
-// MessageTrace 定义消息追踪结构
+// MessageTrace defines message tracing structure
 type MessageTrace struct {
-    TraceId    string       `json:"trace_id"`     // 追踪ID
-    StartTime  time.Time    `json:"start_time"`   // 消息创建时间
-    Hops       []MessageHop `json:"hops"`         // 消息经过的服务节点
-    TotalTime  Duration     `json:"total_time"`   // 总处理时间
+    TraceId    string       `json:"trace_id"`     // Trace ID
+    StartTime  time.Time    `json:"start_time"`   // Message creation time
+    Hops       []MessageHop `json:"hops"`         // Service nodes the message passed through
+    TotalTime  Duration     `json:"total_time"`   // Total processing time
 }
 
-// MessageHop 定义消息经过的每个服务节点信息
+// MessageHop defines information for each service node the message passes through
 type MessageHop struct {
-    ServiceId   string   `json:"service_id"`    // 服务ID
-    ServiceName string   `json:"service_name"`  // 服务名称
-    HostName    string   `json:"host_name"`     // 主机名
-    EntryTime   time.Time `json:"entry_time"`   // 进入服务时间
-    ExitTime    time.Time `json:"exit_time"`    // 离开服务时间
-    Duration    Duration  `json:"duration"`      // 处理耗时
-    Status      string    `json:"status"`       // 处理状态
-    Error       string    `json:"error,omitempty"` // 错误信息（如果有）
+    ServiceId   string   `json:"service_id"`    // Service ID
+    ServiceName string   `json:"service_name"`  // Service name
+    HostName    string   `json:"host_name"`     // Host name
+    EntryTime   time.Time `json:"entry_time"`   // Time entered service
+    ExitTime    time.Time `json:"exit_time"`    // Time left service
+    Duration    Duration  `json:"duration"`      // Processing duration
+    Status      string    `json:"status"`       // Processing status
+    Error       string    `json:"error,omitempty"` // Error message (if any)
 }
 
-// Duration 自定义时间类型，支持更友好的JSON序列化
+// Duration custom time type, supports more friendly JSON serialization
 type Duration time.Duration
 
-// MarshalJSON 实现Duration的JSON序列化
+// MarshalJSON implements JSON serialization for Duration
 func (d Duration) MarshalJSON() ([]byte, error) {
     return json.Marshal(time.Duration(d).String())
 }
 
-// UnmarshalJSON 实现Duration的JSON反序列化
+// UnmarshalJSON implements JSON deserialization for Duration
 func (d *Duration) UnmarshalJSON(b []byte) error {
     var v string
     if err := json.Unmarshal(b, &v); err != nil {
@@ -47,7 +47,7 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
     return nil
 }
 
-// NewMessageTrace 创建新的消息追踪
+// NewMessageTrace creates a new message trace
 func NewMessageTrace() *MessageTrace {
     return &MessageTrace{
         TraceId:   GenerateUUID(),
@@ -56,7 +56,7 @@ func NewMessageTrace() *MessageTrace {
     }
 }
 
-// AddHop 添加一个服务节点
+// AddHop adds a service node
 func (mt *MessageTrace) AddHop(serviceId, serviceName, hostName string) *MessageHop {
     hop := MessageHop{
         ServiceId:   serviceId,
@@ -68,7 +68,7 @@ func (mt *MessageTrace) AddHop(serviceId, serviceName, hostName string) *Message
     return &mt.Hops[len(mt.Hops)-1]
 }
 
-// CompleteHop 完成当前服务节点的处理
+// CompleteHop completes the processing of the current service node
 func (h *MessageHop) Complete(status string, err error) {
     h.ExitTime = time.Now()
     h.Duration = Duration(h.ExitTime.Sub(h.EntryTime))
@@ -78,7 +78,7 @@ func (h *MessageHop) Complete(status string, err error) {
     }
 }
 
-// CalculateTotalTime 计算消息总处理时间
+// CalculateTotalTime calculates the total processing time of the message
 func (mt *MessageTrace) CalculateTotalTime() {
     if len(mt.Hops) == 0 {
         mt.TotalTime = 0
@@ -90,7 +90,7 @@ func (mt *MessageTrace) CalculateTotalTime() {
     mt.TotalTime = Duration(lastHop.ExitTime.Sub(firstHop.EntryTime))
 }
 
-// GetHopByService 获取指定服务的处理信息
+// GetHopByService gets the processing information for the specified service
 func (mt *MessageTrace) GetHopByService(serviceName string) *MessageHop {
     for i := range mt.Hops {
         if mt.Hops[i].ServiceName == serviceName {
@@ -100,7 +100,7 @@ func (mt *MessageTrace) GetHopByService(serviceName string) *MessageHop {
     return nil
 }
 
-// String 实现消息追踪的字符串表示
+// String implements the string representation of the message trace
 func (mt *MessageTrace) String() string {
     data, _ := json.MarshalIndent(mt, "", "  ")
     return string(data)

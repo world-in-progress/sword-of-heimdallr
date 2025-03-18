@@ -2,14 +2,14 @@ package protocol
 
 import "fmt"
 
-// ProtocolError 定义协议错误类型
+// ProtocolError defines the protocol error type
 type ProtocolError struct {
     Code    int         `json:"code"`
     Message string      `json:"message"`
     Details interface{} `json:"details,omitempty"`
 }
 
-// Error 实现 error 接口
+// Error implements the error interface
 func (e *ProtocolError) Error() string {
     if e.Details != nil {
         return fmt.Sprintf("[%d] %s: %v", e.Code, e.Message, e.Details)
@@ -17,7 +17,7 @@ func (e *ProtocolError) Error() string {
     return fmt.Sprintf("[%d] %s", e.Code, e.Message)
 }
 
-// NewProtocolError 创建新的协议错误
+// NewProtocolError creates a new protocol error
 func NewProtocolError(code int, message string, details interface{}) *ProtocolError {
     return &ProtocolError{
         Code:    code,
@@ -26,40 +26,40 @@ func NewProtocolError(code int, message string, details interface{}) *ProtocolEr
     }
 }
 
-// 预定义错误码
+// Predefined error codes
 const (
-    // 1000-1099: Protocol level errors 协议级错误
-    ErrCodeInvalidMessage     = 1000  // 消息格式不符合协议规范
-    ErrCodeInvalidMessageType = 1001  // 消息类型不在预定义类型列表中
-    ErrCodeInvalidVersion     = 1002  // 协议版本不匹配或不支持
-    ErrCodeInvalidFormat      = 1003  // 消息结构不正确（如缺少必要字段）
-    ErrCodeValidationFailed   = 1004  // 消息内容验证失败（如字段值不合法）
-    ErrCodeSerializeFailed    = 1005  // 消息序列化失败（转JSON等）
-    ErrCodeDeserializeFailed  = 1006  // 消息反序列化失败（解析JSON等）
+    // 1000-1099: Protocol level errors
+    ErrCodeInvalidMessage     = 1000  // Message format does not comply with protocol specification
+    ErrCodeInvalidMessageType = 1001  // Message type not in predefined type list
+    ErrCodeInvalidVersion     = 1002  // Protocol version mismatch or unsupported
+    ErrCodeInvalidFormat      = 1003  // Incorrect message structure (e.g., missing required fields)
+    ErrCodeValidationFailed   = 1004  // Message content validation failed (e.g., invalid field values)
+    ErrCodeSerializeFailed    = 1005  // Message serialization failed (e.g., JSON conversion)
+    ErrCodeDeserializeFailed  = 1006  // Message deserialization failed (e.g., JSON parsing)
 
-    // 1100-1199: Authentication/Authorization errors 认证/授权错误
-    ErrCodeUnauthorized      = 1100  // 未经授权的访问
-    ErrCodeInvalidToken      = 1101  // 无效的认证令牌
-    ErrCodeInsufficientPerms = 1102  // 权限不足
-    ErrCodeSessionExpired    = 1103  // 会话已过期
+    // 1100-1199: Authentication/Authorization errors
+    ErrCodeUnauthorized      = 1100  // Unauthorized access
+    ErrCodeInvalidToken      = 1101  // Invalid authentication token
+    ErrCodeInsufficientPerms = 1102  // Insufficient permissions
+    ErrCodeSessionExpired    = 1103  // Session expired
 
-    // 1200-1299: Execution errors 执行错误
-    ErrCodeExecutionFailed   = 1200  // 执行失败
-    ErrCodeTimeout           = 1201  // 操作超时
-    ErrCodeDependencyFailed  = 1202  // 依赖执行失败
-    ErrCodeServiceNotFound   = 1203  // 服务未找到
-    ErrCodeMethodNotFound    = 1204  // 方法未找到
-    ErrCodeInvalidParams     = 1205  // 参数不合法
+    // 1200-1299: Execution errors
+    ErrCodeExecutionFailed   = 1200  // Execution failed
+    ErrCodeTimeout           = 1201  // Operation timeout
+    ErrCodeDependencyFailed  = 1202  // Dependency execution failed
+    ErrCodeServiceNotFound   = 1203  // Service not found
+    ErrCodeMethodNotFound    = 1204  // Method not found
+    ErrCodeInvalidParams     = 1205  // Invalid parameters
 
-    // 1300-1399: Communication errors 通信错误
-    ErrCodeConnectionFailed  = 1300  // 连接失败
-    ErrCodeHeartbeatTimeout  = 1301  // 心跳超时
-    ErrCodeSubscribeFailed   = 1302  // 订阅失败
-    ErrCodePublishFailed     = 1303  // 发布失败
-    ErrCodeCommFailed        = 1304  // 通信操作失败
+    // 1300-1399: Communication errors
+    ErrCodeConnectionFailed  = 1300  // Connection failed
+    ErrCodeHeartbeatTimeout  = 1301  // Heartbeat timeout
+    ErrCodeSubscribeFailed   = 1302  // Subscribe failed
+    ErrCodePublishFailed     = 1303  // Publish failed
+    ErrCodeCommFailed        = 1304  // Communication operation failed
 )
 
-// 预定义错误实例
+// Predefined error instances
 var (
     // Protocol errors
     ErrInvalidMessage     = NewProtocolError(ErrCodeInvalidMessage, "Invalid message format", nil)
@@ -92,7 +92,7 @@ var (
     ErrCommFailed        = NewProtocolError(ErrCodeCommFailed, "Comm operation failed", nil)
 )
 
-// WithDetails 添加错误详情
+// WithDetails adds error details
 func (e *ProtocolError) WithDetails(details interface{}) *ProtocolError {
     return &ProtocolError{
         Code:    e.Code,
@@ -101,13 +101,13 @@ func (e *ProtocolError) WithDetails(details interface{}) *ProtocolError {
     }
 }
 
-// IsProtocolError 检查是否为协议错误
+// IsProtocolError checks if the error is a protocol error
 func IsProtocolError(err error) bool {
     _, ok := err.(*ProtocolError)
     return ok
 }
 
-// GetErrorCode 获取错误码，如果不是协议错误则返回0
+// GetErrorCode gets the error code, returns 0 if it's not a protocol error
 func GetErrorCode(err error) int {
     if pe, ok := err.(*ProtocolError); ok {
         return pe.Code
