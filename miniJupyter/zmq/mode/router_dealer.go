@@ -2,7 +2,6 @@ package mode
 
 import (
 	"fmt"
-	"log"
 	"miniJupyter/zmq/base"
 
 	zmq "github.com/pebbe/zmq4"
@@ -41,7 +40,6 @@ func NewDealer(address string, bind bool, identity string) (*DealerNode, error) 
 
 // SendToClient sends a message to a specific client
 func (r *RouterNode) SendToClient(clientID string, msg string) error {
-	log.Printf("SendToClient to %s", clientID)
 	return r.Send(clientID, msg)
 }
 
