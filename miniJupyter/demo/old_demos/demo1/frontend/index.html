@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Jupyter-like Demo</title>
+    <style>
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .code-input {
+        width: 100%;
+        height: 100px;
+        margin-bottom: 10px;
+      }
+      .output {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+        min-height: 50px;
+      }
+      .status {
+        padding: 5px 10px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 10px;
+      }
+      .status.alive {
+        background-color: #4caf50;
+        color: white;
+      }
+      .status.failed {
+        background-color: #f44336;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Jupyter-like Demo</h1>
+      <div id="heartbeat-status" class="status">Connecting...</div>
+      <textarea class="code-input" id="code"></textarea>
+      <button onclick="executeCode()">Execute</button>
+      <div class="output" id="output"></div>
+    </div>
+
+    <script>
+      let ws = new WebSocket("ws://localhost:8080/ws");
+      let output = document.getElementById("output");
+      let statusDiv = document.getElementById("heartbeat-status");
+      let lastHeartbeat = Date.now();
+
+      ws.onmessage = function (event) {
+        const message = JSON.parse(event.data);
+        if (message.msg_type === "execute_reply") {
+          output.innerHTML += `<div>${message.content}</div>`;
+        } else if (message.msg_type === "heartbeat_status") {
+          lastHeartbeat = Date.now();
+          statusDiv.textContent =
+            message.content === "alive"
+              ? "Kernel Alive"
+              : "Kernel Not Responding";
+          statusDiv.className = "status " + message.content;
+        }
+      };
+
+      ws.onclose = function () {
+        output.innerHTML += "<div>Connection closed</div>";
+        statusDiv.textContent = "Connection Closed";
+        statusDiv.className = "status failed";
+      };
+
+      // 监控心跳超时
+      setInterval(() => {
+        if (Date.now() - lastHeartbeat > 10000) {
+          // 10秒无心跳则认为连接异常
+          statusDiv.textContent = "Connection Lost";
+          statusDiv.className = "status failed";
+        }
+      }, 1000);
+
+      function executeCode() {
+        const code = document.getElementById("code").value;
+        const message = {
+          msg_type: "execute_request",
+          content: {
+            code: code,
+            silent: false,
+          },
+          msg_id: Date.now().toString(),
+        };
+        ws.send(JSON.stringify(message));
+      }
+    </script>
+  </body>
+</html>
